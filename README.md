@@ -25,12 +25,16 @@
 ## 参考文献
 
 A Content-Based Recommendation System Using Neuro-Fuzzy Approach (2018 IEEE)
+https://ieeexplore.ieee.org/ielx7/8466242/8491438/08491543.pdf?tp=&arnumber=8491543&isnumber=8491438&tag=1
 
 A supervised learning approach to build a recommendation system for user-generated content in a casual game (2017 IEEE)
+https://ieeexplore.ieee.org/ielx7/8399565/8400303/08400316.pdf?tp=&arnumber=8400316&isnumber=8400303
 
 A review on deep learning for recommender systems: challenges and remedies (2018 Springer Nature)
+https://github.com/hongleizhang/RSPapers/blob/master/01-Surveys/2018-Explainable%20Recommendation%20A%20Survey%20and%20New%20Perspectives.pdf
 
 Explainable Recommendation: A Survey and New Perspectives
+https://github.com/hongleizhang/RSPapers/blob/master/01-Surveys/2018-A%20review%20on%20deep%20learning%20for%20recommender%20systems-challenges%20and%20remedies.pdf
 
 ## 会议总结
 
@@ -39,6 +43,7 @@ Explainable Recommendation: A Survey and New Perspectives
 阅读两篇论文，一篇是Image Super-Resolution Using Dense Skip Connections，另一篇是A Survey on Deep Transfer Learning。在前者中我了解到了DenseNets，而在后者中我了解了迁移学习Transfer Learning。可以尝试使用DenseNets来进行特征提取，观察下效果。
 
 导师在听完我的关于项目的设想后，指出特征提取的方法有很多，要做出自己的创意，简单地通过网络进行向量化的想法过于简单。我在反思之后，觉得应该着重两点进行研究，一是尝试新的网络，与常用的网络进行效果对比; 二是对标签的预处理，都是经过相同的网络，一个好的预处理可以得到代表性更强的向量。另外导师也提到了，关于对时间因素的创新运用，要重点去验证其效果，该模型应该与没有运用这个方法的模型和对时间因素有不同用法的模型进行比较。在会议后，我认为我应该从逻辑上分析该方法的优势在何处，增加我的方法的可解释性。
+
 
 10.30第二次会议：
 
