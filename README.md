@@ -49,3 +49,5 @@ https://github.com/hongleizhang/RSPapers/blob/master/01-Surveys/2018-A%20review%
 
 导师再次建议要多读论文，我也十分同意，需要了解更多研究者的方法，才能更好地完善自己的系统。另外我重新分析我的系统，发现我的系统事实上更接近与content-based rs而不是user-based CF和 item-based CF，因此我寻找论文的方向也作了修改。但CF相关的论文我认为也很有价值，我打算寻找结合这两个模型的混合系统的相关论文，看看能不能将部分CF的方法融入到CBRS中。
 
+## 11/15工作总结
+阅读了上述提到的论文，从Explainable Recommendation: A Survey and New Perspectives中了解到offline evaluation的几种常见指标和方法，可以用来分析系统的质量，文中提及大量推荐系统的方法及发展脉络，可以开阔我的思路，并且避免做其他研究者做过的研究。从A Content-Based Recommendation System Using Neuro-Fuzzy Approach我了解到了模糊逻辑的概念，我觉得这个方法可以尝试加入到我的项目中，因为对于user的口味是否发生变化的判决可以用模糊系统进行判决。由于这两周家里有点事，稍微打乱了进度，并且我思考后觉得需要用一周来具体定下系统框架，所以我对整个工作进度进行了调整：下周定下具体可行的系统框架，决定所有算法的选取，给出算法思路，之后的任务顺延。
