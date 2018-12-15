@@ -70,4 +70,20 @@ https://github.com/hongleizhang/RSPapers/blob/master/01-Surveys/2018-A%20review%
 在明确了流程之后，我学习了pandas相关知识，并进行初步的编码。确定了文本读入的方法，用户user类的结构和电影movie类的结构，代码已上传。
 阅读了论文 Daily-Aware Personalized Recommendation based on Feature-Level Time Series Analysis ，了解其他学者在这个方向上的研究成果。
 
+## 12/15工作总结
+1. 这两周首先对之前的LoadData函数进行调试，以便实现文档读入功能，并以正确的格式保待利用的数据，修正了User类和Movie类的结构和成员函数。
+2. 是对所有的电影的tags和genres数据作为语料库，进行训练，得到可以表征一部电影的向量，参考gensim的用法，其中还阅读了
+https://www.leiphone.com/news/201706/PamWKpfRFEI42McI.html
+https://www.jianshu.com/p/c252a4bf05a5
+https://www.jianshu.com/p/cf51bbaa289a
+这几篇博客，以便后续可能手动改写w2v。
+3. 阅读了聚类的介绍性论文
+A Comprehensive Survey of Clustering Algorithms (2015 Springer)
+来寻找合适的聚类方法。文中提及Clustering Algorithm Based on Density and Distance使我联想起之前了解过的Denpeak函数，之后就确定运用Denpeak聚类算法实现项目，参考的博客：
+https://blog.csdn.net/Leoch007/article/details/80027056#denpeak
+并浏览文中提及的Denpeak原出处论文：
+Clustering by fast search and find of density peaks （2014 SCIENCE）
+根据资料用Denpeak方法实现了Clustering函数。
+
+
 
