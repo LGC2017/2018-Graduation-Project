@@ -189,36 +189,23 @@ def Clustering(user,moviedict): #Denpeak
     cluster_dict={}
     for i in range(rating_movie_num):
         if i in clustercen_index:
+            cluster_dict[i]=i
             continue
         else:
-            belongto=min([DisMatrix[i][j] for j in clustercen_index])
-            if belongto not cluster_dict.keys():
-                cluster_dict[belongto]=[]
-                cluster_dict[belongto].append(i)
+            Min=DisMatrix[i][clustercen_index[0]]
+            belongto=clustercen_index[0]
+            for j in range(len(clustercen_index)):
+                if DisMatrix[i][clustercen_index[j]]<Min:
+                    belongto=j
+                    Min=DisMatrix[i][clustercen_index[j]]
+            cluster_dict[i]=belongto
     return cluster_dict,clustercen_index
 
 
-def MovieRecommendation(userdict,moviedict):
-    #遍历，对每个用户进行聚类，判决口味变化
-    for u in userdict:
-        cluster_dict,clustercen_index=Clustering(u,moviedict) #得到多个簇
-        flag=Judgement(clus,u) #根据簇进行判决
-        if flag: #根据结果决定权重
-            weight
-        else:
-            weight
-    #根据判决结果，进行topk比较，如果有口味变化，越接近当前时刻的电影的权重越大，远离越少
-
-    
-
-
-def Test():
-    userdict,moviedict=LoadData() #载入数据
-    sort_rating(moviedict) #调用User对象自身的sort_moive_inf函数对rating信息按时间排序
-    construct_vector(moviedict) #构建向量
-    #给用户推荐作品
-    MovieRecommendation(userdict,moviedict)
-
-
-if __name__=='__main__':
-    Test()
+def Judgement(cluster_dict,clustercen_index,user): 
+    #得到了分类之后的数据，数据分成若干个类
+    #之后要做的就是根据分类判断，用户口味是否发生变化，由于事先已经排好序，所以cluster_dict里的顺序是按时间排的
+    #然后根据滑动窗口，计算窗口内计数最多的类别占比多少，设置阈值，超过认为是有偏向性
+    #找到最大的滑窗范围，之后在剩下的区域内再设置窗口，重复到所有元素都被划分到区域内
+    #如果前后两个滑窗超过阈值，说明两个时间段内用户的口味有偏向，且发生变化，以类中心作为代表，比较距离，进行推荐
+    k=len(cluste
