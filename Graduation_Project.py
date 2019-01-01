@@ -208,4 +208,119 @@ def Judgement(cluster_dict,clustercen_index,user):
     #然后根据滑动窗口，计算窗口内计数最多的类别占比多少，设置阈值，超过认为是有偏向性
     #找到最大的滑窗范围，之后在剩下的区域内再设置窗口，重复到所有元素都被划分到区域内
     #如果前后两个滑窗超过阈值，说明两个时间段内用户的口味有偏向，且发生变化，以类中心作为代表，比较距离，进行推荐
-    k=len(cluste
+    k=len(clustercen_index)
+    movlist=[a for a in clusterdict.keys()]
+    #找到最小簇的元素数量
+    min_element_num=len(cluster_dict)
+    for i in clustercen_index:
+        length=len([a for a in clusterdict.keys() if cluster_dict[a]==i])
+        if min_element_num>length:
+            min_element_num=length
+    if min_element_num<3: #窗口长度至少为3
+        min_element_num=3
+    #只要统计两个区间即可，判断两个区间情况即可知道
+    #第一个区间要考虑用户最进情况，所以窗口时固定从最新得评论开始
+    ratio1,s1,e1,max_cluster1=cal_ratio(movlist,len(movlist),len(clustercen_index),min_element_num)
+    #第二个区间，则是考虑之前是否存在偏向，所以应该用最大连续子数列和的思路找到占比最大的一段序列
+    #如果该序列超过某个阈值表明用户之前确对某类型电影有偏好，运用动态规划实现
+    ratio2,s2,e2,max_cluster2=cal_ratio(movlist,start,len(clustercen_index),min_element_num)
+
+    #设置阈值为0.5
+    threshold=0.5
+    case=0
+    if max_cluster1==max_cluster2: #两个区间最大比例的簇相同，表明用户整体上对该类型有一定程度偏好
+        return ratio1,max_cluster1,case
+    else:
+        
+        if ratio1>threshold and ratio2>threshold: #两者比例都超过阈值，表明品味变化
+            case=1
+            return ratio1,max_cluster1,case #对当前喜欢的类型赋予高权重，削弱旧爱好类型权重
+        elif ratio1>threshold and ratio2<threshold:
+            case=2
+            return ratio1,max_cluster1.case #对当前喜欢类型赋予高权重
+        elif ratio1<threshold and ratio2>threshold: #有偏爱类型，最近没有观看
+            case=3
+            return ratio1,max_cluster2,case
+        else: #杂食，无特别偏好
+            case=4
+            return 0,0,case
+
+        
+        
+
+def cal_ratio(movlist,start,class_num,min_element_num): 
+    #传入参数有电影列表，窗口开始位置，聚类的个数，最小元素的类别的元素个数
+    #返回参数有两个，一个是最大比例ratio，另一个是截至位置，即窗口框住的边缘situation,左右都要返回
+    #分别是start和end，而end，区间是[end,start),窗口从有往左数
+    if start<0: #如果发现剩下的散点数量太少了，直接返回0和0
+        return 0,0,0
+    countnum=np.zeros(class_num) #记录每种类型的电影的数量
+    init_end=start-min_element_num #窗口初始尾部
+    end=init_end
+    max_ratio
+    for i in range(end,-1,-1):
+        cen2index={} #给类中心编号，方便数组记录
+        cnt=0
+        tmplist=movlist[i:start]#窗口，不断变长，统计用户观影是否有偏向性
+        if i==init_end:
+            for j in tmplist:
+                if cluster_dict[j] not in cen2index.keys():
+                    cen2index[cluster_dict[j]]=cnt
+                    countnum[cnt]+=1
+                    cnt+=1
+            max_ratio=np.max(countnum)/np.sum(countnum)
+        else:
+            if cluster_dict[tmplist[0]] not in cen2index.keys():
+                cen2index[cluster_dict[j]]=cnt
+                countnum[cnt]+=1
+            else:
+                countnum[cen2index[tmplist[0]]]+=1
+        ratio=np.max(countnum)/np.sum(countnum) #设定阈值
+        max_cluster= [ind for ind in cen2index.values() if ind==countnum.index(np.max(countnum))] #计算最大比例的簇
+        if max_ratio<=ratio:
+            max_ratio=ratio
+            end=i
+    return ratio,start,end,max_cluster[0]
+
+ 
+def dp_cal_ratio(movlist,start,class_num,min_element_num) #用动态规划找出连续序列中占比最大的电影类型
+
+
+    
+
+
+
+
+
+def MovieRecommendation(userdict,moviedict):
+    #遍历，对每个用户进行聚类，判决口味变化
+    #userdict里存有评分过电影得列表，再到moviedict寻找电影得相关参数
+    for u in userdict:
+        cluster_dict,clustercen_index=Clustering(u,moviedict) #得到多个簇
+        ratio,max_cluster1,case=Judgement(cluster_dict,clustercen_index,u) #根据簇进行判决
+        if case=0:
+            pass
+        elif case=1:
+            pass
+        elif case=2:
+            pass
+        elif case=3:
+            pass
+        else:
+
+
+    #根据判决结果，进行topk比较，如果有口味变化，越接近当前时刻的电影的权重越大，远离越少
+
+    
+
+
+def Test():
+    userdict,moviedict=LoadData() #载入数据
+    sort_rating(moviedict) #调用User对象自身的sort_moive_inf函数对rating信息按时间排序
+    construct_vector(moviedict) #构建向量
+    #给用户推荐作品
+    MovieRecommendation(userdict,moviedict)
+
+
+if __name__=='__main__':
+    Test()
