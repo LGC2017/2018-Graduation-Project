@@ -84,7 +84,7 @@ https://github.com/hongleizhang/RSPapers/blob/master/01-Surveys/2018-A%20review%
    Clustering by fast search and find of density peaks （2014 SCIENCE）
 根据资料用Denpeak方法实现了Clustering函数。
 
-## 1/1工作总结
+## 1/1 工作总结
 1. 这两周主要的工作是完善判决函数的逻辑，如何将已经分好类的电影和用户的评分列表相结合，判决用户是否有对特定类型的电影有偏好，并且这个偏好有无改变。
 由于聚类考虑的是电影的空间远近，而评分列表则是以评分时间来排列电影，所以判决函数就是分析在空间上像近的电影在时间上的关系如何。如果用户在一段时间内
 对某类电影有偏好，那么评分列表的分布应该是在一段时间内某个电影类型的电影出现频率很高。我们认为空间和时间是两个聚类，所以判决函数就是对聚类进行一个
@@ -92,3 +92,6 @@ https://github.com/hongleizhang/RSPapers/blob/master/01-Surveys/2018-A%20review%
 之后要参考最大连续子数列和的算法 https://www.cnblogs.com/conw/p/5896155.html ，修改后用来找到某类型电影占比最大的子序列。
 2. 修改之前聚类函数，将函数中字典逻辑修改，从类中心作为key，电影列表作为values，修改为电影作为key而类中心作为value。
 在判决函数逻辑完成后，工程主要算法已经完成，之后的几天要做的就是对不同用户的评分情况进行分析，调整权重，为用户推荐电影。之后需要进行代码的调试。
+
+## 1/15 工作总结
+把最后推荐的权重分配函数Recommendation完成，整个系统各部分函数已经完成。不过程序bug还是有点多，工作重心转移到程序调试，进行了打量了的调试，修复了LoadData函数的bug，聚类函数的bug。
