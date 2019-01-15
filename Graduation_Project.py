@@ -49,6 +49,7 @@ class User(object):
 
 #电影类的datamembers，主要有id，features，features包括电影的名字，类型和电影的标签,list类型，另外还有一个待用的feature_vector，
 #是用来存放训练之后得到的特征向量，方便之后进行距离运算，也是list类型
+
 class Movie(object):
     num=0 #统计总共有多少个电影对象
 
@@ -65,9 +66,9 @@ def construct_vector(MovieList):  #每部电影的关键字，每个关键字可
         #得到了model之后，就可以利用model，得到对应feature，以为一个movie的tags有不少，所以vector不止一个，用相加的方式来表征一个movie
         #也可以计算两组vectors之间的差距，一个vector离另一组vector的差距用最近的距离表示，然后所有vector离另一vector组的距离平均值作为组距
         for i in range(len(Tagsline)):
-            MovieList[i].features=np.zeros(len(model.wv(Tagsline[0][0]))) #创建全0的向量
+            MovieList[i].features_vector=np.zeros(len(model.wv(Tagsline[0][0]))) #创建全0的向量
             for j in Tagsline[i]:
-                MovieList[i].features+=model.wv(j) #对所有tags的值求和
+                MovieList[i].features_vector+=model.wv(j) #对所有tags的值求和
 
 
 def LoadData():
@@ -220,10 +221,10 @@ def Judgement(cluster_dict,clustercen_index,user):
         min_element_num=3
     #只要统计两个区间即可，判断两个区间情况即可知道
     #第一个区间要考虑用户最进情况，所以窗口时固定从最新得评论开始
-    ratio1,s1,e1,max_cluster1=cal_ratio(movlist,len(movlist),len(clustercen_index),min_element_num)
+    ratio1,s1,e1,max_cluster1=cal_ratio(movlist,len(movlist),len(clustercen_index),min_element_num,cluster_dict)
     #第二个区间，则是考虑之前是否存在偏向，所以应该用最大连续子数列和的思路找到占比最大的一段序列
     #如果该序列超过某个阈值表明用户之前确对某类型电影有偏好，运用动态规划实现
-    ratio2,s2,e2,max_cluster2=cal_ratio(movlist,start,len(clustercen_index),min_element_num)
+    ratio2,s2,e2,max_cluster2=dp_cal_ratio(movlist,e1,clustercen_index,min_element_num,cluster_dict)
 
     #设置阈值为0.5
     threshold=0.5
@@ -234,7 +235,10 @@ def Judgement(cluster_dict,clustercen_index,user):
         
         if ratio1>threshold and ratio2>threshold: #两者比例都超过阈值，表明品味变化
             case=1
-            return ratio1,max_cluster1,case #对当前喜欢的类型赋予高权重，削弱旧爱好类型权重
+            R=[]
+            R.append(ratio1)
+            R.append(ratio2)
+            return R,max_cluster1,max_,case #对当前喜欢的类型赋予高权重，削弱旧爱好类型权重
         elif ratio1>threshold and ratio2<threshold:
             case=2
             return ratio1,max_cluster1.case #对当前喜欢类型赋予高权重
@@ -248,14 +252,14 @@ def Judgement(cluster_dict,clustercen_index,user):
         
         
 
-def cal_ratio(movlist,start,class_num,min_element_num): 
+def cal_ratio(movlist,start,class_num,min_element_num,cluster_dict): 
     #传入参数有电影列表，窗口开始位置，聚类的个数，最小元素的类别的元素个数
-    #返回参数有两个，一个是最大比例ratio，另一个是截至位置，即窗口框住的边缘situation,左右都要返回
-    #分别是start和end，而end，区间是[end,start),窗口从有往左数
-    if start<0: #如果发现剩下的散点数量太少了，直接返回0和0
-        return 0,0,0
+    #返回参数有四个，一个是最大比例ratio，另一个是截至位置，即窗口框住的边缘situation,左右都要返回
+    #分别是start和end，而end，区间是[end,start),窗口从右往左数，还有一个是最大占比的类别
     countnum=np.zeros(class_num) #记录每种类型的电影的数量
     init_end=start-min_element_num #窗口初始尾部
+    if init_end<=0: #如果发现剩下的散点数量太少了，直接返回0和0
+        return -1,0,0,0
     end=init_end
     max_ratio
     for i in range(end,-1,-1):
@@ -283,35 +287,144 @@ def cal_ratio(movlist,start,class_num,min_element_num):
     return ratio,start,end,max_cluster[0]
 
  
-def dp_cal_ratio(movlist,start,class_num,min_element_num) #用动态规划找出连续序列中占比最大的电影类型
-
+def dp_cal_ratio(movlist,start,clustercen_index,min_element_num,cluster_dict): #用动态规划找出连续序列中占比最大的电影类型
+    #返回值有两个，比例和类型名字，第二段序列不必知道起始，因为不作后续运算
+    init_end=start-min_element_num #窗口初始尾部
+    if init_end<=0: #序列太短，直接返回0和0
+        return -1,0
+    end=init_end
+    ratiolist=[]
+    for i in clustercen_index:
+        ratiolist.append(dp_cal_R(movlist,start,min_element_num,i,cluster_dict))
+    max_ratio_index=ratiolist.index(max(ratiolist))
+    return max(ratiolist),clustercen_index[max_ratio_index]
 
     
 
 
 
+def dp_cal_R(movlist,start,min_element_num,cla,cluster_dict): #Cla表示需要计算的是哪一个类的最大连续串数量，有多少个类就要调用多少次函数
+    max_ratio=0
+    ratio_num=0 #比例分子
+    ratio_den=0 #比例的分母
+    count=0 #扫描过的同类型目标，每次最大序列更换起点就清零
+    arr_start=-1 #记录最大占比序列起点
+    arr_end=-1   #记录最大占比序列终点 
+    flag=0 #判断当前序列是否在内循环已经扫描过，用来跳过外循环某些部分
 
+    #最大比例序列=max(之前最大序列，以当前的同类型目标为新起点构建的序列，以当前目标为终点之前最大序列起点不变的序列)
+    #返回值：比例ratio
+    #循环可能情况：找到指定类型目标后发现后面序列太短，没找到同类型目标，返回0，
+    for i in range(start,-1-1):
+        if i<flag: #之前以在内循环扫描过序列，直接跳过
+            continue
+        if flag!=0 and i==flag: #重置flag
+            flag=0
+        if cluster_dict[i]==cla: #找到首个同类型的目标
+            count=count+1
+            if i>=min_element_num: #判断后续序列足够长
+                cla_count=len([j for j in range(i,i-min_element_num,-1) if cluster_dict[j]==cla]) #新序列同类型目标数
+                if max_ratio==0:
+                    ratio_num=cla_count
+                    ratio_den=min_element_num
+                    max_ratio=ratio_num/ratio_den
+                    arr_start=i
+                    arr_end=i-min_element_num
+                    count=0
+                    flag=i+min_element_num
+                else:
+                    new_ratio=cla_count/min_element_num #新起点序列
+                    combine_ratio=(ratio_num+count)/(ratio_den+(arr_end-i)+1-count) 
+                    if new_ratio>=max_ratio and new_ratio>=combine_ratio:
+                        max_ratio=new_ratio
+                        arr_start=i
+                        arr_end=i-min_element_num
+                        count=0
+                        ratio_num=cla_count
+                        ratio_den=min_element_num
+                        flag=i+min_element_num
 
+                    elif combine_ratio>=max_ratio and combine_ratio>=new_ratio:
+                        max_ratio=combine_ratio
+                        arr_end=i-1
+                        ratio_num+=count
+                        ratio_den+=(arr_end-i)+1-count
+                        count=0
+                    #不满足就条件就不更换序列
+            else:
+                combine_ratio=(ratio_num+count)/(ratio_den+(arr_end-i)+1-count) 
+                if combine_ratio>=max_ratio:
+                        max_ratio=combine_ratio
+                        arr_end=i-1
+                        ratio_num+=count
+                        ratio_den+=(arr_end-i)+1-count
+                        count=0
+    return max_ratio 
+                        
 def MovieRecommendation(userdict,moviedict):
     #遍历，对每个用户进行聚类，判决口味变化
     #userdict里存有评分过电影得列表，再到moviedict寻找电影得相关参数
-    for u in userdict:
+    for u in userdict.values():
         cluster_dict,clustercen_index=Clustering(u,moviedict) #得到多个簇
         ratio,max_cluster1,case=Judgement(cluster_dict,clustercen_index,u) #根据簇进行判决
-        if case=0:
-            pass
-        elif case=1:
-            pass
-        elif case=2:
-            pass
-        elif case=3:
-            pass
-        else:
+        ratinglist=list(u.rating_movies_inf.iloc[:,1])
+        Recommendation(ratinglist,moviedict,case,max_cluster1,ratio)
 
 
     #根据判决结果，进行topk比较，如果有口味变化，越接近当前时刻的电影的权重越大，远离越少
 
-    
+def Recommendation(ratinglist,moviedict,case,max_cluster,ratio): #传入参数要先处理成list
+    dis=[]
+    if case==4: #无明显偏好，直接挑选距离最近的电影
+        for m in moviedict.values():
+            tempdis=0
+            if m.id in ratinglist:
+                continue
+            for i in range(len(ratinglist) if len(ratinglist>10) else 10):
+                tempdis+=np.norm(m.features_vector-moviedict[ratinglist[-1-i]].features_vector)
+            dis.append(tempdeis)
+        Dis=zip(dis,range(dis))
+        Dis.sort(keys=lambda x:x[0])
+        return [i[1] for i in Dis[0:10]] #返回前10个目标
+    elif case==0 or case==2: #有明显偏好，推荐该偏好
+        for m in moviedict.values():
+            tempdis=0
+            if m.id in ratinglist:
+                continue
+            tempdis=np.norm(m.features_vector-moviedict[max_cluster].features_vector)
+            dis.append(tempdeis/10)
+        Dis=zip(dis,range(dis))
+        Dis.sort(keys=lambda x:x[0])
+        return [i[1] for i in Dis[0:10]] #返回前10个目标
+    elif case==3:
+        for m in moviedict.values():
+            tempdis=0
+            if m.id in ratinglist:
+                continue
+            for i in range(len(ratinglist) if len(ratinglist>9) else 9):
+                tempdis+=np.norm(m.features_vector-moviedict[ratinglist[-1-i]].features_vector)
+            tempdis+=np.norm(m.features_vector-moviedict[ratinglist[max_cluster]].features_vector)
+            dis.append(tempdis/10)
+        Dis=zip(dis,range(dis))
+        Dis.sort(keys=lambda x:x[0])
+        return [i[1] for i in Dis[0:10]]
+    elif case==1: #归一化，用倒数作为指标，ratio作为权重，这个指标越大越好
+        for m in moviedict.values():
+            tempdis=0
+            sum=0
+            if m.id in ratinglist:
+                continue
+            for i in range(len(ratinglist) if len(ratinglist>9) else 9):
+                sum+=m.features_vector-moviedict[ratinglist[-1-i]].features_vector
+            for i in range(len(ratinglist) if len(ratinglist>9) else 9):
+                tempdis+=sum/np.norm(m.features_vector-moviedict[ratinglist[-1-i]].features_vector) * (1-ratio[1])
+            tempdis+=sum/np.norm(m.features_vector-moviedict[ratinglist[max_cluster]].features_vector) * ratio[0]
+            dis.append(tempdis/10)
+        Dis=zip(dis,range(dis))
+        Dis.sort(keys=lambda x:x[0])
+        return [i[1] for i in Dis[-11:-1]]
+        
+
 
 
 def Test():
