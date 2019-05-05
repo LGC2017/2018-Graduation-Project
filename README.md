@@ -112,6 +112,8 @@ https://github.com/hongleizhang/RSPapers/blob/master/01-Surveys/2018-A%20review%
 3.由于修改了电影的表征方式，所以电影间距离要重新定义，我的定义是两电影共有特征的权重和的倒数。对于某个用户而言，相似的电影意味着有很多共有特征；如果两个电影同时拥有几个高权重特征，那么几个特征权重的加和很高，加权和的倒数就会很小。用这个方法表示电影距离，是符合逻辑的。
 在对模型进行优化之后，代码又进行一列的修改和调试，最后的得到了优化结果如下图，在图中可以看出，对于目标用户，优化算法能提高总体命中数
 ![Aaron Swartz](https://raw.githubusercontent.com/LGC2017/2018-Graduation-Project/master/picture/result_cmp1.png)
+
 上述工作大致进行到3月初，之后进行开始进行论文的编写。在四月初向导师交了初稿，导师希望能突出创新点，因此，我多加了一个模型，来验证我的优化角度是可行的。我们称多加的模型为模型二，前面的为模型一。模型二与模型一主要区别在于偏好判决函数不同，模型二用的是加权法进行偏好的判决，对比用户最近的偏好与相对远一点的时间点的偏好特征是否相同来判决用户偏好是否改变。该方法同样能对系统进行优化，优化结果如下图：
 ![Aaron Swartz](https://raw.githubusercontent.com/LGC2017/2018-Graduation-Project/master/picture/result_cmp2.png)
+
 最后我将代码分成三份，Graduation_Project_v1是模型一，Graduation_Project_v2是基础CBRS代码，二Graduation_Project_v3则是模型二，修改之后的论文顺利提交了。
