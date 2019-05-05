@@ -477,33 +477,6 @@ def Judgement(cluster_dict,clustercen_index,user,moviedict):
        
               
 
-
-
-    '''
-    case=0
-    if max_cluster1==max_cluster2: #两个区间最大比例的簇相同，表明用户整体上对该类型有一定程度偏好
-        return ratio1,max_cluster1,case #case 0，表明品味变化不大，用中心类型作为特征类，来进行推荐
-    else:
-        if ratio2<0: #边界值，ratio2<0 表明观众评论过的电影过少，所看的电影类型只有一种明显类型
-            case=4
-            return 0,0,case
-        elif ratio1>=threshold1 and ratio2>=threshold2: #两者比例都超过阈值，表明品味变化
-            case=1
-            R=[]
-            R.append(ratio1)
-            R.append(ratio2)
-            return R,[max_cluster1,max_cluster2],case #对当前喜欢的类型赋予高权重，削弱旧爱好类型权重
-        elif ratio1>threshold1 and ratio2<threshold2:
-            case=2
-            return ratio1,max_cluster1,case #对当前喜欢类型赋予高权重
-        elif ratio1<threshold1 and ratio2>threshold2: #有偏爱类型，最近没有观看
-            case=3
-            return ratio2,max_cluster2,case
-        else: #杂食，无特别偏好
-            case=4
-            return 0,0,case
-    '''
-
 def dp_cal_ratio(movlist,start,clustercen_index,min_element_num,cluster_dict): #用动态规划找出连续序列中占比最大的电影类型
     #返回值有两个，比例和类型名字，第二段序列不必知道起始，因为不作后续运算
     init_end=start-min_element_num #窗口初始尾部
